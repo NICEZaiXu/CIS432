@@ -15,29 +15,29 @@ from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 
 # =============================================================================
-# 模型训练部分：训练所有模型并保存
+# Model Training Section: Train and save all models
 # =============================================================================
 def train_all_models():
-    # 读取数据
+    # Read data from CSV
     df = pd.read_csv("heloc_dataset_v1.csv")
     
-    # 将目标变量转换为数值：Good 为 1，Bad 为 0
+    # Convert the target variable: "Good" -> 1, "Bad" -> 0
     df["RiskPerformance"] = df["RiskPerformance"].map({"Good": 1, "Bad": 0})
     
-    # 将特殊值(-9, -8, -7)替换为 NaN
+    # Replace special values (-9, -8, -7) with NaN
     special_values_list = [-9, -8, -7]
     df.replace(special_values_list, np.nan, inplace=True)
     
-    # 删除缺失值过多的列（超过 40% 的缺失值）
+    # Drop columns with more than 40% missing values
     threshold = 0.4 * len(df)
     df_cleaned = df.dropna(thresh=threshold, axis=1)
     
-    # 对数值型特征用中位数填充缺失值
+    # Fill missing values for numerical features with the median
     for col in df_cleaned.columns:
         if df_cleaned[col].dtype in ["float64", "int64"]:
             df_cleaned[col].fillna(df_cleaned[col].median(), inplace=True)
     
-    # 使用 IQR 方法检测异常值，并将超出边界的值替换为 NaN，再用中位数填充
+    # Use the IQR method to detect outliers, replace out-of-bound values with NaN, then fill with the median
     Q1 = df_cleaned.quantile(0.25)
     Q3 = df_cleaned.quantile(0.75)
     IQR = Q3 - Q1
@@ -49,19 +49,19 @@ def train_all_models():
                                        np.nan, df_cleaned[col])
             df_cleaned[col].fillna(df_cleaned[col].median(), inplace=True)
     
-    # 分离特征和目标变量
+    # Separate features and target variable
     y = df_cleaned["RiskPerformance"]
     X = df_cleaned.drop(columns=["RiskPerformance"])
     
-    # 划分训练集和测试集（80% 训练，20% 测试，分层抽样）
+    # Split data into training and testing sets (80% training, 20% testing, stratified sampling)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
     
-    # 对于 Logistic Regression 和 SVM 使用标准化数据
+    # Standardize data for Logistic Regression and SVM
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
     
-    # 定义所有模型
+    # Define all models
     models = {
         "Logistic Regression": LogisticRegression(),
         "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
@@ -70,7 +70,7 @@ def train_all_models():
         "SVM": SVC(probability=True, random_state=42)
     }
     
-    # 训练所有模型并评估（评估结果仅作参考）
+    # Train each model and print their accuracy (for reference)
     for name, model in models.items():
         if name in ["Logistic Regression", "SVM"]:
             model.fit(X_train_scaled, y_train)
@@ -81,32 +81,32 @@ def train_all_models():
         accuracy = accuracy_score(y_test, y_pred)
         print(f"{name} Accuracy: {accuracy:.4f}")
     
-    # 保存所有模型
+    # Save all models
     joblib.dump(models["Logistic Regression"], "logistic_regression.pkl")
     joblib.dump(models["Random Forest"], "random_forest.pkl")
     joblib.dump(models["Decision Tree"], "decision_tree.pkl")
     joblib.dump(models["Gradient Boosting"], "gradient_boosting.pkl")
     joblib.dump(models["SVM"], "svm.pkl")
-    # 同时保存 scaler（用于 Logistic Regression 和 SVM）
+    # Save the scaler (used for Logistic Regression and SVM)
     joblib.dump(scaler, "scaler.pkl")
-    print("所有模型和 scaler 已保存。")
+    print("All models and scaler have been saved.")
 
-# 如果所有模型或 scaler 文件不存在，则训练所有模型
+# If any required file does not exist, train all models
 required_files = ["logistic_regression.pkl", "random_forest.pkl", "decision_tree.pkl", 
                   "gradient_boosting.pkl", "svm.pkl", "scaler.pkl"]
 if not all(os.path.exists(f) for f in required_files):
     train_all_models()
 
 # =============================================================================
-# Streamlit 部署部分：仅使用 Logistic Regression 模型进行预测及拒绝原因反馈
+# Streamlit Deployment Section: Use only the Logistic Regression model for prediction and detailed rejection reasons
 # =============================================================================
 
-# 加载已保存的 Logistic Regression 模型和 scaler
+# Load the saved Logistic Regression model and scaler
 logistic_regression_model = joblib.load("logistic_regression.pkl")
 scaler = joblib.load("scaler.pkl")
 
 # =============================================================================
-# 多语言翻译字典（应用界面相关）
+# Multi-language Translation Dictionary (for app interface)
 # =============================================================================
 translations = {
     "app_title": {
@@ -172,7 +172,7 @@ translations = {
         "हिंदी": "के लिए मान दर्ज करें",
         "עברית": "הזן ערך עבור"
     },
-    # 以下为针对贡献说明的多语言模板
+    # Templates for explaining contributions
     "reason_positive": {
         "English": "{} contributes positively with a value of {:.2f}, increasing the likelihood of approval.",
         "中文": "{} 对批准有正面影响（贡献值：{:.2f}），有助于贷款批准。",
@@ -197,7 +197,7 @@ translations = {
 }
 
 # =============================================================================
-# 变量名称翻译字典（feature_translations）
+# Feature Name Translation Dictionary
 # =============================================================================
 feature_translations = {
     "ExternalRiskEstimate": {
@@ -364,23 +364,23 @@ feature_translations = {
 }
 
 # =============================================================================
-# 语言选择（增加 עברית）
+# Language Selection
 # =============================================================================
 language = st.sidebar.selectbox("Language / 语言 / 언어 / भाषा / עברית", 
                                 options=["English", "中文", "한국어", "हिंदी", "עברית"])
 
 # =============================================================================
-# 应用标题和描述
+# App Title and Description
 # =============================================================================
 st.title(translations["app_title"][language])
 st.write(translations["app_description"][language])
 
 # =============================================================================
-# 手动输入各项申请人参数（使用 number_input 组件，利用 feature_translations 显示本地化名称）
+# Manual Input of Applicant Parameters (using number_input with localized feature names)
 # =============================================================================
 st.sidebar.header(translations["sidebar_details"][language])
 def localized_input(key, min_val, max_val, value, step):
-    """生成带有本地化变量名称的输入组件"""
+    """Generate an input component with localized feature name."""
     label = f"{translations['enter_value'][language]} {feature_translations[key][language]}"
     return st.sidebar.number_input(label=label, min_value=min_val, max_value=max_val, value=value, step=step)
 
@@ -409,23 +409,23 @@ num_bank_natl_trades_high_util = localized_input("NumBank2NatlTradesWHighUtiliza
 percent_trades_balance = localized_input("PercentTradesWBalance", 0, 100, 50, 1)
 
 # =============================================================================
-# 定义基于 Logistic Regression 模型贡献计算的拒绝原因反馈函数
-# 对每个变量都提供详细原因说明（使用本地化变量名称）
+# Function to Generate Detailed Rejection Reasons Based on Contributions
+# (Provides explanation for each variable using localized feature names)
 # =============================================================================
 def get_logistic_rejection_reasons(input_data, lang):
-    # 标准化输入数据
+    # Standardize the input data
     input_scaled = scaler.transform(input_data)
-    # 计算各特征贡献：贡献 = 标准化值 * 模型系数
+    # Calculate the contribution for each feature: contribution = standardized value * model coefficient
     contributions = input_scaled[0] * logistic_regression_model.coef_[0]
-    # 构建 {特征名: 贡献值} 字典
+    # Create a dictionary mapping feature name to its contribution
     feature_contribs = {feature: contrib for feature, contrib in zip(scaler.feature_names_in_, contributions)}
     
     reasons = []
-    # 遍历所有变量，生成对应原因说明
+    # Iterate over each variable and generate its explanation
     for feature, contrib in feature_contribs.items():
-        # 取对应语言的变量名称
+        # Get the localized name of the feature
         localized_name = feature_translations[feature][lang]
-        # 根据贡献值判断说明类型
+        # Determine explanation type based on the contribution value
         if abs(contrib) < 0.05:
             reason = translations["reason_neutral"][lang].format(localized_name, contrib)
         elif contrib < 0:
@@ -436,12 +436,12 @@ def get_logistic_rejection_reasons(input_data, lang):
     return reasons
 
 # =============================================================================
-# 预测函数（仅使用 Logistic Regression 模型）
+# Prediction Function (uses only the Logistic Regression model)
 # =============================================================================
 def make_prediction():
-    st.session_state["button_clicked"] = True  # 更新状态
+    st.session_state["button_clicked"] = True  # Update session state
 
-    # 构造输入数据，字段名称须与训练时一致
+    # Construct input data with column names matching the training data
     input_data = pd.DataFrame({
         "ExternalRiskEstimate": [external_risk],
         "MSinceOldestTradeOpen": [msince_oldest_trade],
@@ -468,17 +468,17 @@ def make_prediction():
         "PercentTradesWBalance": [percent_trades_balance]
     })
     
-    # 确保特征顺序与训练时一致
+    # Ensure the order of features matches the training data
     input_data = input_data[scaler.feature_names_in_]
     
-    # 对输入数据进行标准化（因为模型训练时使用了标准化数据）
+    # Standardize the input data (as used during model training)
     input_scaled = scaler.transform(input_data)
     
-    # 进行预测
+    # Make a prediction using the Logistic Regression model
     prediction = logistic_regression_model.predict(input_scaled)[0]
     st.session_state["prediction"] = prediction
     
-    # 如果预测为拒绝（0），计算每个变量的贡献并给出详细原因
+    # If the prediction is rejection (0), calculate contributions and generate detailed reasons
     if prediction == 0:
         reasons = get_logistic_rejection_reasons(input_data, language)
         st.session_state["reasons"] = reasons
@@ -486,7 +486,7 @@ def make_prediction():
         st.session_state["reasons"] = []
 
 # =============================================================================
-# 初始化状态并展示预测按钮与结果
+# Initialize session state and display prediction button and results
 # =============================================================================
 st.session_state.setdefault("prediction", None)
 st.session_state.setdefault("button_clicked", False)
