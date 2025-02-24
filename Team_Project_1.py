@@ -105,7 +105,9 @@ if not all(os.path.exists(f) for f in required_files):
 logistic_regression_model = joblib.load("logistic_regression.pkl")
 scaler = joblib.load("scaler.pkl")
 
-# 多语言翻译字典
+# =============================================================================
+# 多语言翻译字典（应用界面相关）
+# =============================================================================
 translations = {
     "app_title": {
         "English": "🏦 Credit Risk Prediction App",
@@ -161,7 +163,7 @@ translations = {
         "한국어": "값 입력:",
         "हिंदी": "के लिए मान दर्ज करें"
     },
-    # 以下为针对所有变量的通用原因提示模板
+    # 以下为针对贡献说明的多语言模板
     "reason_positive": {
         "English": "{} contributes positively with a value of {:.2f}, increasing the likelihood of approval.",
         "中文": "{} 对批准有正面影响（贡献值：{:.2f}），有助于贷款批准。",
@@ -182,115 +184,202 @@ translations = {
     }
 }
 
-# 语言选择
+# =============================================================================
+# 变量名称翻译字典（feature_translations）
+# =============================================================================
+feature_translations = {
+    "ExternalRiskEstimate": {
+        "English": "External Risk Estimate",
+        "中文": "外部风险评估",
+        "한국어": "외부 위험 평가",
+        "हिंदी": "बाहरी जोखिम अनुमान"
+    },
+    "MSinceOldestTradeOpen": {
+        "English": "Months Since Oldest Trade Open",
+        "中文": "最早交易开放至今的月份数",
+        "한국어": "최초 거래 개시 이후 경과 개월",
+        "हिंदी": "सबसे पुरानी ट्रेड खुलने के बाद से महीने"
+    },
+    "MSinceMostRecentTradeOpen": {
+        "English": "Months Since Most Recent Trade Open",
+        "中文": "最近交易开放至今的月份数",
+        "한국어": "최근 거래 개시 이후 경과 개월",
+        "हिंदी": "हाल की ट्रेड खुलने के बाद से महीने"
+    },
+    "AverageMInFile": {
+        "English": "Average Months in File",
+        "中文": "文件中的平均月份数",
+        "한국어": "파일 내 평균 개월 수",
+        "हिंदी": "फ़ाइल में औसत महीने"
+    },
+    "NumSatisfactoryTrades": {
+        "English": "Number of Satisfactory Trades",
+        "中文": "满意交易数量",
+        "한국어": "만족 거래 수",
+        "हिंदी": "संतोषजनक ट्रेड की संख्या"
+    },
+    "NumTrades60Ever2DerogPubRec": {
+        "English": "Number of Trades 60+ Ever",
+        "中文": "60+交易次数",
+        "한국어": "60+ 거래 수",
+        "हिंदी": "60+ ट्रेड की संख्या"
+    },
+    "NumTrades90Ever2DerogPubRec": {
+        "English": "Number of Trades 90+ Ever",
+        "中文": "90+交易次数",
+        "한국어": "90+ 거래 수",
+        "हिंदी": "90+ ट्रेड की संख्या"
+    },
+    "PercentTradesNeverDelq": {
+        "English": "Percent of Trades Never Delinquent",
+        "中文": "从未违约的交易百分比",
+        "한국어": "연체 기록 없는 거래 비율",
+        "हिंदी": "कभी डिफॉल्ट न हुए ट्रेड का प्रतिशत"
+    },
+    "MSinceMostRecentDelq": {
+        "English": "Months Since Most Recent Delinquency",
+        "中文": "最近违约至今的月份数",
+        "한국어": "최근 연체 이후 경과 개월",
+        "हिंदी": "हाल ही में डिफॉल्ट से बीते महीने"
+    },
+    "MaxDelq2PublicRecLast12M": {
+        "English": "Max Delinquency in Last 12M",
+        "中文": "过去12个月内最大违约次数",
+        "한국어": "최근 12개월 내 최대 연체",
+        "हिंदी": "पिछले 12 महीनों में अधिकतम डिफॉल्ट"
+    },
+    "MaxDelqEver": {
+        "English": "Max Delinquency Ever",
+        "中文": "历史最大违约次数",
+        "한국어": "전체 기간 최대 연체",
+        "हिंदी": "अब तक का अधिकतम डिफॉल्ट"
+    },
+    "NumTotalTrades": {
+        "English": "Number of Total Trades",
+        "中文": "交易总数",
+        "한국어": "전체 거래 수",
+        "हिंदी": "कुल ट्रेड की संख्या"
+    },
+    "NumTradesOpeninLast12M": {
+        "English": "Number of Trades Open in Last 12M",
+        "中文": "过去12个月内开启的交易数量",
+        "한국어": "최근 12개월 내 개시된 거래 수",
+        "हिंदी": "पिछले 12 महीनों में खुली ट्रेड की संख्या"
+    },
+    "PercentInstallTrades": {
+        "English": "Percent Installment Trades",
+        "中文": "分期交易百分比",
+        "한국어": "할부 거래 비율",
+        "हिंदी": "किस्त ट्रेड का प्रतिशत"
+    },
+    "MSinceMostRecentInqexcl7days": {
+        "English": "Months Since Most Recent Inquiry (excl 7 days)",
+        "中文": "最近查询（排除7天）至今的月份数",
+        "한국어": "최근 문의(7일 제외) 이후 경과 개월",
+        "हिंदी": "हाल की पूछताछ (7 दिनों को छोड़कर) के बाद से महीने"
+    },
+    "NumInqLast6M": {
+        "English": "Number of Inquiries Last 6M",
+        "中文": "过去6个月内查询次数",
+        "한국어": "최근 6개월 내 문의 수",
+        "हिंदी": "पिछले 6 महीनों में पूछताछ की संख्या"
+    },
+    "NumInqLast6Mexcl7days": {
+        "English": "Number of Inquiries Last 6M (excl 7 days)",
+        "中文": "过去6个月内查询次数（排除7天）",
+        "한국어": "최근 6개월 내 문의 수 (7일 제외)",
+        "हिंदी": "पिछले 6 महीनों में पूछताछ की संख्या (7 दिनों को छोड़कर)"
+    },
+    "NetFractionRevolvingBurden": {
+        "English": "Net Fraction Revolving Burden",
+        "中文": "循环负债净比例",
+        "한국어": "순환 부채 비율",
+        "हिंदी": "घूर्णन ऋण का शुद्ध अनुपात"
+    },
+    "NetFractionInstallBurden": {
+        "English": "Net Fraction Install Burden",
+        "中文": "分期负债净比例",
+        "한국어": "할부 부채 비율",
+        "हिंदी": "किस्त ऋण का शुद्ध अनुपात"
+    },
+    "NumRevolvingTradesWBalance": {
+        "English": "Number of Revolving Trades With Balance",
+        "中文": "有余额的循环交易数量",
+        "한국어": "잔액이 있는 순환 거래 수",
+        "हिंदी": "बैलेंस वाले घूर्णन ट्रेड की संख्या"
+    },
+    "NumInstallTradesWBalance": {
+        "English": "Number of Install Trades With Balance",
+        "中文": "有余额的分期交易数量",
+        "한국어": "잔액이 있는 할부 거래 수",
+        "हिंदी": "बैलेंस वाले किस्त ट्रेड की संख्या"
+    },
+    "NumBank2NatlTradesWHighUtilization": {
+        "English": "Number of Bank/National Trades High Utilization",
+        "中文": "银行/全国高利用率交易数量",
+        "한국어": "은행/국가 거래 중 높은 이용률 거래 수",
+        "हिंदी": "बैंक/राष्ट्रीय ट्रेड जिनकी उच्च उपयोग दर है"
+    },
+    "PercentTradesWBalance": {
+        "English": "Percent Trades With Balance",
+        "中文": "有余额的交易百分比",
+        "한국어": "잔액 있는 거래 비율",
+        "हिंदी": "बैलेंस वाले ट्रेड का प्रतिशत"
+    }
+}
+
+# =============================================================================
+# 语言选择（多语言支持）
+# =============================================================================
 language = st.sidebar.selectbox("Language / 语言 / 언어 / भाषा", 
                                 options=["English", "中文", "한국어", "हिंदी"])
 
+# =============================================================================
 # 应用标题和描述
+# =============================================================================
 st.title(translations["app_title"][language])
 st.write(translations["app_description"][language])
 
-# 手动输入各项申请人参数（使用 number_input 组件）
+# =============================================================================
+# 手动输入各项申请人参数（使用 number_input 组件，利用 feature_translations 显示本地化名称）
+# =============================================================================
 st.sidebar.header(translations["sidebar_details"][language])
-external_risk = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} External Risk Estimate",
-    min_value=0, max_value=100, value=50, step=1
-)
-msince_oldest_trade = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Months Since Oldest Trade",
-    min_value=0, max_value=500, value=100, step=1
-)
-msince_most_recent_trade = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Months Since Most Recent Trade",
-    min_value=0, max_value=100, value=10, step=1
-)
-average_m_in_file = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Average Months in File",
-    min_value=0, max_value=200, value=50, step=1
-)
-num_satisfactory_trades = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Number of Satisfactory Trades",
-    min_value=0, max_value=50, value=15, step=1
-)
-num_trades_60_ever = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Num Trades 60+ Ever",
-    min_value=0, max_value=20, value=5, step=1
-)
-num_trades_90_ever = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Num Trades 90+ Ever",
-    min_value=0, max_value=20, value=5, step=1
-)
-percent_trades_never_delq = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Percent of Trades Never Delinquent",
-    min_value=0, max_value=100, value=80, step=1
-)
-msince_most_recent_delq = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Months Since Most Recent Delinquency",
-    min_value=0, max_value=100, value=10, step=1
-)
-max_delq_12m = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Max Delinquency in Last 12M",
-    min_value=0, max_value=10, value=5, step=1
-)
-max_delq_ever = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Max Delinquency Ever",
-    min_value=0, max_value=10, value=5, step=1
-)
-num_total_trades = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Number of Total Trades",
-    min_value=0, max_value=50, value=10, step=1
-)
-num_trades_open_12m = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Number of Trades Open in Last 12M",
-    min_value=0, max_value=20, value=5, step=1
-)
-percent_install_trades = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Percent Installment Trades",
-    min_value=0, max_value=100, value=50, step=1
-)
-msince_most_recent_inq = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Months Since Most Recent Inquiry (excl 7 days)",
-    min_value=0, max_value=100, value=10, step=1
-)
-num_inq_last_6m = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Num Inquiries Last 6M",
-    min_value=0, max_value=20, value=2, step=1
-)
-num_inq_last_6m_excl7 = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Num Inquiries Last 6M (excl 7 days)",
-    min_value=0, max_value=20, value=2, step=1
-)
-net_fraction_revolving_burden = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Net Fraction Revolving Burden",
-    min_value=0, max_value=100, value=50, step=1
-)
-net_fraction_install_burden = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Net Fraction Install Burden",
-    min_value=0, max_value=100, value=50, step=1
-)
-num_revolving_trades_balance = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Num Revolving Trades With Balance",
-    min_value=0, max_value=20, value=5, step=1
-)
-num_install_trades_balance = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Num Install Trades With Balance",
-    min_value=0, max_value=20, value=5, step=1
-)
-num_bank_natl_trades_high_util = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Num Bank/National Trades High Utilization",
-    min_value=0, max_value=20, value=5, step=1
-)
-percent_trades_balance = st.sidebar.number_input(
-    label=f"{translations['enter_value'][language]} Percent Trades With Balance",
-    min_value=0, max_value=100, value=50, step=1
-)
+
+def localized_input(key, min_val, max_val, value, step):
+    """生成带有本地化变量名称的输入组件"""
+    label = f"{translations['enter_value'][language]} {feature_translations[key][language]}"
+    return st.sidebar.number_input(label=label, min_value=min_val, max_value=max_val, value=value, step=step)
+
+external_risk = localized_input("ExternalRiskEstimate", 0, 100, 50, 1)
+msince_oldest_trade = localized_input("MSinceOldestTradeOpen", 0, 500, 100, 1)
+msince_most_recent_trade = localized_input("MSinceMostRecentTradeOpen", 0, 100, 10, 1)
+average_m_in_file = localized_input("AverageMInFile", 0, 200, 50, 1)
+num_satisfactory_trades = localized_input("NumSatisfactoryTrades", 0, 50, 15, 1)
+num_trades_60_ever = localized_input("NumTrades60Ever2DerogPubRec", 0, 20, 5, 1)
+num_trades_90_ever = localized_input("NumTrades90Ever2DerogPubRec", 0, 20, 5, 1)
+percent_trades_never_delq = localized_input("PercentTradesNeverDelq", 0, 100, 80, 1)
+msince_most_recent_delq = localized_input("MSinceMostRecentDelq", 0, 100, 10, 1)
+max_delq_12m = localized_input("MaxDelq2PublicRecLast12M", 0, 10, 5, 1)
+max_delq_ever = localized_input("MaxDelqEver", 0, 10, 5, 1)
+num_total_trades = localized_input("NumTotalTrades", 0, 50, 10, 1)
+num_trades_open_12m = localized_input("NumTradesOpeninLast12M", 0, 20, 5, 1)
+percent_install_trades = localized_input("PercentInstallTrades", 0, 100, 50, 1)
+msince_most_recent_inq = localized_input("MSinceMostRecentInqexcl7days", 0, 100, 10, 1)
+num_inq_last_6m = localized_input("NumInqLast6M", 0, 20, 2, 1)
+num_inq_last_6m_excl7 = localized_input("NumInqLast6Mexcl7days", 0, 20, 2, 1)
+net_fraction_revolving_burden = localized_input("NetFractionRevolvingBurden", 0, 100, 50, 1)
+net_fraction_install_burden = localized_input("NetFractionInstallBurden", 0, 100, 50, 1)
+num_revolving_trades_balance = localized_input("NumRevolvingTradesWBalance", 0, 20, 5, 1)
+num_install_trades_balance = localized_input("NumInstallTradesWBalance", 0, 20, 5, 1)
+num_bank_natl_trades_high_util = localized_input("NumBank2NatlTradesWHighUtilization", 0, 20, 5, 1)
+percent_trades_balance = localized_input("PercentTradesWBalance", 0, 100, 50, 1)
 
 # =============================================================================
 # 定义基于 Logistic Regression 模型贡献计算的拒绝原因反馈函数
-# 对每个变量都提供原因说明
+# 对每个变量都提供详细原因说明（使用本地化变量名称）
 # =============================================================================
 def get_logistic_rejection_reasons(input_data, lang):
-    # 对输入数据进行标准化
+    # 标准化输入数据
     input_scaled = scaler.transform(input_data)
     # 计算各特征贡献：贡献 = 标准化值 * 模型系数
     contributions = input_scaled[0] * logistic_regression_model.coef_[0]
@@ -300,13 +389,15 @@ def get_logistic_rejection_reasons(input_data, lang):
     reasons = []
     # 遍历所有变量，生成对应原因说明
     for feature, contrib in feature_contribs.items():
+        # 取对应语言的变量名称
+        localized_name = feature_translations[feature][lang]
         # 根据贡献值判断说明类型
         if abs(contrib) < 0.05:
-            reason = translations["reason_neutral"][lang].format(feature, contrib)
+            reason = translations["reason_neutral"][lang].format(localized_name, contrib)
         elif contrib < 0:
-            reason = translations["reason_negative"][lang].format(feature, contrib)
+            reason = translations["reason_negative"][lang].format(localized_name, contrib)
         else:
-            reason = translations["reason_positive"][lang].format(feature, contrib)
+            reason = translations["reason_positive"][lang].format(localized_name, contrib)
         reasons.append(reason)
     return reasons
 
