@@ -1,4 +1,4 @@
-pip install joblib
+!pip install joblib
 
 import os
 import pandas as pd
