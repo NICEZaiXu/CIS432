@@ -289,12 +289,60 @@ model_choice = st.sidebar.radio(lang["model_selection"], list(st.session_state["
 # 定义拒绝原因生成函数（示例逻辑，可根据需要扩展）
 def get_rejection_reasons(data):
     reasons = []
-    if data["ExternalRiskEstimate"].iloc[0] > 70:
-        reasons.append(lang["external_risk"] + " is too high.")
-    if data["NumSatisfactoryTrades"].iloc[0] < 10:
-        reasons.append(lang["num_satisfactory_trades"] + " is too low.")
+    # 检查外部风险评估值（例如：大于 70 被视为风险较高）
+    ext_risk = data["ExternalRiskEstimate"].iloc[0]
+    if ext_risk > 70:
+        reasons.append(f"{lang['external_risk']} is too high: {ext_risk} (threshold: 70)")
+    
+    # 检查满意交易数（例如：少于 10 被视为不足）
+    num_sat = data["NumSatisfactoryTrades"].iloc[0]
+    if num_sat < 10:
+        reasons.append(f"{lang['num_satisfactory_trades']} is too low: {num_sat} (minimum recommended: 10)")
+    
+    # 检查距最早交易月份（例如：小于 12 个月可能表示信用历史较短）
+    oldest_trade = data["MSinceOldestTradeOpen"].iloc[0]
+    if oldest_trade < 12:
+        reasons.append(f"{lang['msince_oldest_trade']} is too low: {oldest_trade} (minimum recommended: 12 months)")
+    
+    # 检查近12个月开启交易数（例如：大于 10 表示近期交易过多）
+    trades_12m = data["NumTradesOpeninLast12M"].iloc[0]
+    if trades_12m > 10:
+        reasons.append(f"{lang['num_trades_open_12m']} is too high: {trades_12m} (threshold: 10)")
+    
+    # 检查近6个月询问数（例如：大于 5 次可能频繁申请信贷）
+    inq_6m = data["NumInqLast6M"].iloc[0]
+    if inq_6m > 5:
+        reasons.append(f"{lang['num_inq_last_6m']} is too high: {inq_6m} (threshold: 5)")
+    
+    # 检查循环负债比例（例如：大于 80%）
+    revolving = data["NetFractionRevolvingBurden"].iloc[0]
+    if revolving > 80:
+        reasons.append(f"{lang['net_fraction_revolving_burden']} is too high: {revolving}% (threshold: 80%)")
+    
+    # 检查分期负债比例（例如：大于 80%）
+    install = data["NetFractionInstallBurden"].iloc[0]
+    if install > 80:
+        reasons.append(f"{lang['net_fraction_install_burden']} is too high: {install}% (threshold: 80%)")
+    
+    # 检查从未逾期交易百分比（例如：低于 50% 表示存在逾期风险）
+    never_delq = data["PercentTradesNeverDelq"].iloc[0]
+    if never_delq < 50:
+        reasons.append(f"{lang['percent_trades_never_delq']} is too low: {never_delq}% (minimum recommended: 50%)")
+    
+    # 检查最大逾期情况（例如：近12个月最大逾期超过 5）
+    max_delq_12m = data["MaxDelq2PublicRecLast12M"].iloc[0]
+    if max_delq_12m > 5:
+        reasons.append(f"{lang['max_delq_12m']} is too high: {max_delq_12m} (threshold: 5)")
+    
+    # 检查历史最大逾期情况（例如：超过 5 同样认为风险较高）
+    max_delq_ever = data["MaxDelqEver"].iloc[0]
+    if max_delq_ever > 5:
+        reasons.append(f"{lang['max_delq_ever']} is too high: {max_delq_ever} (threshold: 5)")
+    
+    # 如果没有触发任何异常，则返回提示信息
     if not reasons:
-        reasons.append("The input parameters did not trigger any specific rejection criteria.")
+        reasons.append("No specific parameter anomalies were detected.")
+    
     return reasons
 
 # 定义预测函数
