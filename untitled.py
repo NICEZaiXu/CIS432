@@ -162,7 +162,7 @@ lang = language_options[selected_language]
 @st.cache(allow_output_mutation=True)
 def train_models():
     # 读取数据
-    df = pd.read_csv("/Users/lizaixu/Desktop/heloc_dataset_v1.csv")
+    df = pd.read_csv("heloc_dataset_v1.csv")
     # 将目标变量转换为数值（Good:1, Bad:0）
     df["RiskPerformance"] = df["RiskPerformance"].map({"Good": 1, "Bad": 0})
     # 将特殊值替换为 NaN
