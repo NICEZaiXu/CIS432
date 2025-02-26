@@ -172,27 +172,13 @@ translations = {
         "हिंदी": "के लिए मान दर्ज करें",
         "עברית": "הזן ערך עבור"
     },
-    # Templates for explaining contributions
-    "reason_positive": {
-        "English": "{} contributes positively with a value of {:.2f}, increasing the likelihood of approval.",
-        "中文": "{} 对批准有正面影响（贡献值：{:.2f}），有助于贷款批准。",
-        "한국어": "{} 는 긍정적으로 기여합니다 (기여값: {:.2f}), 승인 가능성을 높입니다.",
-        "हिंदी": "{} सकारात्मक रूप से योगदान देता है (योगदान: {:.2f}), स्वीकृति की संभावना बढ़ाता है।",
-        "עברית": "{} תורם באופן חיובי עם ערך של {:.2f}, ומעלה את הסיכוי לאישור."
-    },
+    # Templates for explaining contributions (only negative contributions)
     "reason_negative": {
         "English": "{} contributes negatively with a value of {:.2f}, reducing the likelihood of approval.",
         "中文": "{} 对批准有负面影响（贡献值：{:.2f}），降低贷款批准的可能性。",
         "한국어": "{} 는 부정적으로 기여합니다 (기여값: {:.2f}), 승인 가능성을 낮춥니다.",
         "हिंदी": "{} नकारात्मक रूप से योगदान देता है (योगदान: {:.2f}), स्वीकृति की संभावना कम करता है।",
         "עברית": "{} תורם באופן שלילי עם ערך של {:.2f}, ומפחית את הסיכוי לאישור."
-    },
-    "reason_neutral": {
-        "English": "{} has no significant influence (contribution: {:.2f}).",
-        "中文": "{} 对批准没有显著影响（贡献值：{:.2f}）。",
-        "한국어": "{} 는 유의미한 영향을 미치지 않습니다 (기여값: {:.2f}).",
-        "हिंदी": "{} का कोई महत्वपूर्ण प्रभाव नहीं है (योगदान: {:.2f})।",
-        "עברית": "{} אינו משפיע באופן משמעותי (תרומה: {:.2f})."
     }
 }
 
@@ -364,9 +350,9 @@ feature_translations = {
 }
 
 # =============================================================================
-# Language Selection
+# Language Selection (Add עברית with actual Hebrew text)
 # =============================================================================
-language = st.sidebar.selectbox("Language / 语言 / 언어 / भाषा / עברית", 
+language = st.sidebar.selectbox("Language / 语言 / 언어 / भाषा / Language (עברית)", 
                                 options=["English", "中文", "한국어", "हिंदी", "עברית"])
 
 # =============================================================================
@@ -380,7 +366,7 @@ st.write(translations["app_description"][language])
 # =============================================================================
 st.sidebar.header(translations["sidebar_details"][language])
 def localized_input(key, min_val, max_val, value, step):
-    """Generate an input component with localized feature name."""
+    """Generate an input component with a localized feature name."""
     label = f"{translations['enter_value'][language]} {feature_translations[key][language]}"
     return st.sidebar.number_input(label=label, min_value=min_val, max_value=max_val, value=value, step=step)
 
@@ -409,8 +395,8 @@ num_bank_natl_trades_high_util = localized_input("NumBank2NatlTradesWHighUtiliza
 percent_trades_balance = localized_input("PercentTradesWBalance", 0, 100, 50, 1)
 
 # =============================================================================
-# Function to Generate Detailed Rejection Reasons Based on Contributions
-# (Provides explanation for each variable using localized feature names)
+# Function to Generate Detailed Rejection Reasons Based on Negative Contributions
+# (Provides explanations only for features that reduce the likelihood of approval)
 # =============================================================================
 def get_logistic_rejection_reasons(input_data, lang):
     # Standardize the input data
@@ -421,18 +407,12 @@ def get_logistic_rejection_reasons(input_data, lang):
     feature_contribs = {feature: contrib for feature, contrib in zip(scaler.feature_names_in_, contributions)}
     
     reasons = []
-    # Iterate over each variable and generate its explanation
+    # Iterate over each feature and generate explanation only if it contributes negatively
     for feature, contrib in feature_contribs.items():
-        # Get the localized name of the feature
-        localized_name = feature_translations[feature][lang]
-        # Determine explanation type based on the contribution value
-        if abs(contrib) < 0.05:
-            reason = translations["reason_neutral"][lang].format(localized_name, contrib)
-        elif contrib < 0:
+        if contrib < 0:
+            localized_name = feature_translations[feature][lang]
             reason = translations["reason_negative"][lang].format(localized_name, contrib)
-        else:
-            reason = translations["reason_positive"][lang].format(localized_name, contrib)
-        reasons.append(reason)
+            reasons.append(reason)
     return reasons
 
 # =============================================================================
@@ -478,7 +458,7 @@ def make_prediction():
     prediction = logistic_regression_model.predict(input_scaled)[0]
     st.session_state["prediction"] = prediction
     
-    # If the prediction is rejection (0), calculate contributions and generate detailed reasons
+    # If the prediction is rejection (0), calculate negative contributions and generate reasons
     if prediction == 0:
         reasons = get_logistic_rejection_reasons(input_data, language)
         st.session_state["reasons"] = reasons
