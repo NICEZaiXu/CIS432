@@ -350,9 +350,9 @@ feature_translations = {
 }
 
 # =============================================================================
-# Language Selection (Add עברית with actual Hebrew text)
+# Language Selection 
 # =============================================================================
-language = st.sidebar.selectbox("Language / 语言 / 언어 / भाषा / Language (עברית)", 
+language = st.sidebar.selectbox("Language / 语言 / 언어 / भाषा / עברית", 
                                 options=["English", "中文", "한국어", "हिंदी", "עברית"])
 
 # =============================================================================
